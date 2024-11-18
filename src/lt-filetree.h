@@ -150,8 +150,7 @@ void FileTreeInternal(FileTree* file_tree, int* y_offset, Rectangle bounds, Rect
 
 int GuiFileTree(FileTree* file_tree, Rectangle bounds, Vector2 *scroll, Rectangle *view, const char** clicked_file_path) {
     Rectangle content = { 0 };
-    content.height = 30;
-    content.width = bounds.width - 10;
+    content.width = bounds.width;
 
     int ret = 0;
     int y_offset = 0;
