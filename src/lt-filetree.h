@@ -9,7 +9,7 @@ typedef struct FileTree {
     struct FileTree* children;
 } FileTree;
 
-FileTree LoadFileTree(const char* path) {
+FileTree LTLoadFileTree(const char* path) {
     FileTree tree = { 0 };
 
     tree.path = malloc(strlen(path) + 1);
@@ -66,10 +66,10 @@ FileTree LoadFileTree(const char* path) {
     return tree;
 }
 
-void CloseFileTree(FileTree* tree) {
+void LTCloseFileTree(FileTree* tree) {
     for (int i = 0; i < tree->children_count; i++) {
         free(tree->children[i].path);
-        CloseFileTree(&tree->children[i]);
+        LTCloseFileTree(&tree->children[i]);
     }
 
     if (tree->children_count != 0) {
@@ -78,19 +78,19 @@ void CloseFileTree(FileTree* tree) {
     }
 }
 
-void FreeFileTree(FileTree* tree) {
+void LTFreeFileTree(FileTree* tree) {
     free(tree->path);
 
     for (int i = 0; i < tree->children_count; i++) {
-        FreeFileTree(&tree->children[i]);
+        LTFreeFileTree(&tree->children[i]);
     }
 }
 
-void FreeFileTreeInternal(FileTree* tree) {
+void LTFreeFileTreeInternal(FileTree* tree) {
     free(tree->path);
 
     for (int i = 0; i < tree->children_count; i++) {
-        FreeFileTree(&tree->children[i]);
+        LTFreeFileTree(&tree->children[i]);
     }
 
     // FIXME: IDK if i need this cuz free(tree) already will free all the children cuz recursion
@@ -102,7 +102,7 @@ void FreeFileTreeInternal(FileTree* tree) {
     free(tree);
 }
 
-void FileTreeInternal(FileTree* file_tree, int* y_offset, Rectangle bounds, Rectangle old_text_rect, Vector2* scroll, const char** clicked_file_path, int* ret) {
+void LTFileTreeInternal(FileTree* file_tree, int* y_offset, Rectangle bounds, Rectangle old_text_rect, Vector2* scroll, const char** clicked_file_path, int* ret) {
     int spacing = GuiGetStyle(DEFAULT, TEXT_LINE_SPACING);
 
     Rectangle button_rect;
@@ -129,9 +129,9 @@ void FileTreeInternal(FileTree* file_tree, int* y_offset, Rectangle bounds, Rect
         if (!file_tree->is_file)
         {
             if (file_tree->is_open) {
-                CloseFileTree(file_tree);
+                LTCloseFileTree(file_tree);
             } else {
-                *file_tree = LoadFileTree(file_tree->path);
+                *file_tree = LTLoadFileTree(file_tree->path);
             }
         }
 
@@ -144,11 +144,11 @@ void FileTreeInternal(FileTree* file_tree, int* y_offset, Rectangle bounds, Rect
 
     for (int i = 0; i < file_tree->children_count; i++) {
         *y_offset += spacing;
-        FileTreeInternal(&file_tree->children[i], y_offset, (Rectangle) { bounds.x, bounds.y, bounds.width, bounds.height - *y_offset }, text_rect, scroll, clicked_file_path, ret);
+        LTFileTreeInternal(&file_tree->children[i], y_offset, (Rectangle) { bounds.x, bounds.y, bounds.width, bounds.height - *y_offset }, text_rect, scroll, clicked_file_path, ret);
     }
 }
 
-int GuiFileTree(FileTree* file_tree, Rectangle bounds, Vector2 *scroll, Rectangle *view, const char** clicked_file_path) {
+int LTGuiFileTree(FileTree* file_tree, Rectangle bounds, Vector2 *scroll, Rectangle *view, const char** clicked_file_path) {
     Rectangle content = { 0 };
     content.width = bounds.width;
 
@@ -164,7 +164,7 @@ int GuiFileTree(FileTree* file_tree, Rectangle bounds, Vector2 *scroll, Rectangl
     int button_border_width = GuiGetStyle(BUTTON, BORDER_WIDTH);
     GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
 
-    FileTreeInternal(file_tree, &y_offset, (Rectangle){bounds.x, bounds.y, bounds.width, bounds.height}, (Rectangle){ 0 }, scroll, clicked_file_path, &ret);
+    LTFileTreeInternal(file_tree, &y_offset, (Rectangle){bounds.x, bounds.y, bounds.width, bounds.height}, (Rectangle){ 0 }, scroll, clicked_file_path, &ret);
 
     EndScissorMode();
 
